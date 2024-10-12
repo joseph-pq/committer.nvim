@@ -7,7 +7,22 @@ local conf = require('telescope.config').values
 
 -- map table
 local prefix_map = {
-    [':bug:'] = "fix"
+    [':bug:'] = 'fix',
+    [':sparkles:'] = "feat",
+    [':zap:'] = "perf",
+    [':recycle:'] = "refactor",
+    [':lipstick:'] = "style",
+    [':construction:'] = "chore",
+    [':white_check_mark:'] = "test",
+    [':books:'] = "docs",
+    [':wrench:'] = "config",
+    [':hammer:'] = "build",
+    [':arrow_up:'] = "ci",
+    [':fire:'] = "remove",
+    [':lock:'] = "security",
+    [':pencil2:'] = "update",
+    [':rewind:'] = "revert",
+    [':truck:'] = "move",
 }
 
 -- Function to handle the selection
