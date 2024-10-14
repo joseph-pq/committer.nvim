@@ -42,7 +42,7 @@ function ChooseCommitType()
   pickers.new({}, {
     prompt_title = 'Choose commit type',
     finder = finders.new_table {
-      results = { 'gitmoji', 'standard' }
+      results = { 'gitmoji', 'conventional' }
     },
     sorter = conf.generic_sorter({}),
     attach_mappings = function(_, map)
@@ -70,7 +70,7 @@ local function setup_telescope_gitmoji(commit_type)
                     --   }
                     -- }
                     local emoji = entry.value.value
-                    if commit_type == 'standard' then
+                    if commit_type == 'conventional' then
                         emoji = prefix_map[entry.value.text] or emoji
                     end
                     -- Just insert the text instead of commiting
@@ -94,8 +94,8 @@ function SetCommitType(commit_type)
         return
     end
     -- ChooseCommitType()
-    -- check if commit_type is 'gitmoji' or 'standard'
-    if commit_type ~= 'gitmoji' and commit_type ~= 'standard' then
+    -- check if commit_type is 'gitmoji' or 'conventional'
+    if commit_type ~= 'gitmoji' and commit_type ~= 'conventional' then
         print("Invalid commit type")
         return
     end
@@ -153,15 +153,15 @@ local function setup()
         end
         -- load git_path from data if it exists, otherwise load ''
         commit_type = data[git_path] or ''
-        -- if commit_type is not 'gitmoji' or 'standard', set it to ''
-        if commit_type ~= 'gitmoji' and commit_type ~= 'standard' then
+        -- if commit_type is not 'gitmoji' or 'conventional', set it to ''
+        if commit_type ~= 'gitmoji' and commit_type ~= 'conventional' then
             commit_type = ''
         end
     end
 
     -- Set the commit type
     if commit_type == '' then
-        commit_type = 'standard'
+        commit_type = 'conventional'
     end
 
     setup_telescope_gitmoji(commit_type)
