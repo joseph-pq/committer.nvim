@@ -5,85 +5,73 @@ local finders = require('telescope.finders')
 local conf = require('telescope.config').values
 
 
--- map table
-local prefix_map = {
-    [':bug:'] = 'fix',
-    [':sparkles:'] = "feat",
-    [':zap:'] = "perf",
-    [':recycle:'] = "refactor",
-    [':lipstick:'] = "style",
-    [':construction:'] = "chore",
-    [':white_check_mark:'] = "test",
-    [':books:'] = "docs",
-    [':wrench:'] = "config",
-    [':hammer:'] = "build",
-    [':arrow_up:'] = "ci",
-    [':fire:'] = "remove",
-    [':lock:'] = "security",
-    [':pencil2:'] = "update",
-    [':rewind:'] = "revert",
-    [':truck:'] = "move",
-}
-
 -- Function to handle the selection
 local function handle_selection(prompt_bufnr)
-  local selection = action_state.get_selected_entry()
-  actions.close(prompt_bufnr)
-  if selection then
-    vim.t.commit_type = selection[1]
-    print('You selected: ' .. selection[1])
-  else
-    print('No selection made')
-  end
+    local selection = action_state.get_selected_entry()
+    actions.close(prompt_bufnr)
+    if selection then
+        vim.t.commit_type = selection[1]
+        print('You selected: ' .. selection[1])
+    else
+        print('No selection made')
+    end
 end
 
 -- Function to create a popup with two options
 function ChooseCommitType()
-  pickers.new({}, {
-    prompt_title = 'Choose commit type',
-    finder = finders.new_table {
-      results = { 'gitmoji', 'conventional' }
-    },
-    sorter = conf.generic_sorter({}),
-    attach_mappings = function(_, map)
-      map('i', '<CR>', handle_selection)
-      map('n', '<CR>', handle_selection)
-      return true
-    end
-  }):find()
+    pickers.new({}, {
+        prompt_title = 'Choose commit type',
+        finder = finders.new_table {
+            results = { 'gitmoji', 'conventional' }
+        },
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(_, map)
+            map('i', '<CR>', handle_selection)
+            map('n', '<CR>', handle_selection)
+            return true
+        end
+    }):find()
+end
+
+local function insert_text(value)
+    local pos = vim.api.nvim_win_get_cursor(0)[2]
+    local line = vim.api.nvim_get_current_line()
+    local nline = line:sub(0, pos) .. value .. ' ' .. line:sub(pos + 1)
+    vim.api.nvim_set_current_line(nline)
 end
 
 local function setup_telescope_gitmoji(commit_type)
     local telescope = require('telescope')
-    telescope.setup({
-        extensions = {
-            gitmoji = {
-                action = function(entry)
-                    -- entry = {
-                    --   display = "🐛 Fix a bug.",
-                    --   index = 4,
-                    --   ordinal = "Fix a bug.",
-                    --   value = {
-                    --     description = "Fix a bug.",
-                    --     text = ":bug:",
-                    --     value = "🐛"
-                    --   }
-                    -- }
-                    local emoji = entry.value.value
-                    if commit_type == 'conventional' then
-                        emoji = prefix_map[entry.value.text] or emoji
-                    end
-                    -- Just insert the text instead of commiting
-                    local pos = vim.api.nvim_win_get_cursor(0)[2]
-                    local line = vim.api.nvim_get_current_line()
-                    local nline = line:sub(0, pos) .. emoji .. ' ' .. line:sub(pos + 1)
-                    vim.api.nvim_set_current_line(nline)
-                end,
+    if commit_type == 'conventional' then
+        telescope.setup({
+            extensions = {
+                conventional_commits = {
+                    action = function(entry)
+                        insert_text(entry.value)
+                    end,
+                    include_body_and_footer = false, -- Add prompts for commit body and footer
+                },
             },
-        },
-    })
-    telescope.load_extension("gitmoji")
-    vim.keymap.set('n', '<leader>m', telescope.extensions.gitmoji.gitmoji)
+        })
+
+        telescope.load_extension("conventional_commits")
+        vim.keymap.set('n', '<leader>m', telescope.extensions.conventional_commits.conventional_commits)
+    elseif commit_type == 'gitmoji' then
+        telescope.setup({
+            extensions = {
+                gitmoji = {
+                    action = function(entry)
+                        insert_text(entry.value.value)
+                    end,
+                },
+            },
+        })
+        telescope.load_extension("gitmoji")
+        vim.keymap.set('n', '<leader>m', telescope.extensions.gitmoji.gitmoji)
+    else
+        print("Invalid commit type")
+        return
+    end
 end
 
 
@@ -119,7 +107,6 @@ function SetCommitType(commit_type)
 
     setup_telescope_gitmoji(commit_type)
 end
-
 
 local function setup()
     -- Check if this is a git repository

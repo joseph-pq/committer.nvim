@@ -19,6 +19,7 @@ Install with lazy.nvim:
     dependencies = {
         'nvim-telescope/telescope.nvim',
         'olacin/telescope-gitmoji.nvim',
+        'olacin/telescope-cc.nvim',
         'nvim-lua/plenary.nvim',
     },
 }
