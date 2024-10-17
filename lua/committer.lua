@@ -88,7 +88,7 @@ function SetCommitType(commit_type)
         return
     end
     -- save option
-    local file = io.open(vim.fn.stdpath('config') .. '/committer.json', 'r')
+    local file = io.open(vim.fn.stdpath('data') .. '/committer.json', 'r')
     if file == nil then
         print("Error reading committer.json file")
         return
@@ -97,7 +97,7 @@ function SetCommitType(commit_type)
     file:close()
     local data = vim.json.decode(content)
     data[git_path] = commit_type
-    file = io.open(vim.fn.stdpath('config') .. '/committer.json', 'w')
+    file = io.open(vim.fn.stdpath('data') .. '/committer.json', 'w')
     if file == nil then
         print("Error writing committer.json file")
         return
@@ -119,9 +119,9 @@ local function setup()
 
 
     -- Create a json file in ~/.config/nvim/committer.json if it doesn't exist
-    local file = io.open(vim.fn.stdpath('config') .. '/committer.json', 'r')
+    local file = io.open(vim.fn.stdpath('data') .. '/committer.json', 'r')
     if file == nil then
-        file = io.open(vim.fn.stdpath('config') .. '/committer.json', 'w')
+        file = io.open(vim.fn.stdpath('data') .. '/committer.json', 'w')
         -- check file nil
         if file == nil then
             print("Error creating committer.json file")
